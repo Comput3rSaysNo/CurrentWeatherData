@@ -88,7 +88,7 @@ namespace CurrentWeatherData.API.Services
                 , _openWeatherMapApiBaseUri
                 , HttpUtility.UrlEncode(City)
                 , HttpUtility.UrlEncode(Country)
-                , HttpUtility.UrlEncode(AppId);
+                , HttpUtility.UrlEncode(AppId));
         }
     }
 }
