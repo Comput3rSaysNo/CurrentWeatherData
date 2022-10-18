@@ -19,6 +19,19 @@ using CurrentWeatherData.API.Authorization;
 using CurrentWeatherData.API.Middlewares;
 using System.Numerics;
 using System.Dynamic;
+using Microsoft.AspNetCore.Diagnostics;
+using CurrentWeatherData.API.Exceptions;
+using Microsoft.AspNetCore.Http;
+
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
+using static System.Collections.Specialized.BitVector32;
+using System.Text.Json;
 
 namespace CurrentWeatherData.API
 {
@@ -75,11 +88,38 @@ namespace CurrentWeatherData.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+        
+            app.UseExceptionHandler(c => c.Run(async context =>
             {
-                app.UseDeveloperExceptionPage();
-            }
+                Exception exception = context.Features
+                    .Get<IExceptionHandlerPathFeature>()
+                    .Error;
 
+                HttpStatusCode errorCode = HttpStatusCode.InternalServerError;
+
+                if (exception is BaseException)
+                    errorCode = ((BaseException)exception).HttpErrorCode;
+
+                dynamic response = new ExpandoObject();
+
+                response.code = (int)errorCode;
+                response.message = exception.Message;
+
+                // only output stacktrace in dev environment
+                if (env.IsDevelopment())
+                    response.stacktrace = exception.ToString();
+
+                context.Response.StatusCode = response.code;
+
+                string jsonResponse = JsonSerializer.Serialize(response);
+
+                await context.Response.WriteAsync(jsonResponse);
+            }));
+    
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -88,9 +128,8 @@ namespace CurrentWeatherData.API
 
             app.UseAuthorization();
 
-            dynamic[] result = _configuration.GetSection("CurrentWeatherData_Api:RateLimit").Get<ExpandoObject[]>();
-
             // configure rate limiting middleware
+            dynamic[] result = _configuration.GetSection("CurrentWeatherData_Api:RateLimit").Get<ExpandoObject[]>();
             ApiKeyRateLimitMiddlwareOptions apiKeyRateLimitMiddlwareOptions = new ApiKeyRateLimitMiddlwareOptions
             {
                 RateLimit = result.ToDictionary(
@@ -99,6 +138,7 @@ namespace CurrentWeatherData.API
                 )
             };
             app.UseMiddleware<ApiKeyRateLimitMiddlware>(apiKeyRateLimitMiddlwareOptions);
+
 
             app.UseEndpoints(endpoints =>
             {

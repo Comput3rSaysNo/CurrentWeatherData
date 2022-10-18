@@ -6,7 +6,7 @@ namespace CurrentWeatherData.API.Exceptions
     public class MissingApiKeyException : BaseException
     {
         public MissingApiKeyException() 
-            : base("API Key Missing. Please provide API key via request header [X-API-KEY] OR query string [api-key]", HttpStatusCode.Unauthorized)
+            : base("Api key missing. Include Api key in Request Header [X-API-KEY] or Query String ?api-key={value}", HttpStatusCode.Unauthorized)
         {
 
         }
