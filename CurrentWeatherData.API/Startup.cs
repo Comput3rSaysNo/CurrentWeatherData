@@ -35,6 +35,7 @@ namespace CurrentWeatherData.API
         {
             // enable httpcontextaccessor for our Authorization handler
             services.AddHttpContextAccessor();
+
             services.AddMemoryCache();
 
             // configure CORS
@@ -58,7 +59,7 @@ namespace CurrentWeatherData.API
             services.AddSingleton<IAuthorizationHandler, ApiKeyValidationHandler>();
 
             // configure weather data service
-            services.AddSingleton<CurrentWeatherDataService>(x =>
+            services.AddSingleton(x =>
             {
                 HttpClient client = new HttpClient();
 

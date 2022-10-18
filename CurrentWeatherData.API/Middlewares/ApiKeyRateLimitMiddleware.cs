@@ -22,9 +22,7 @@ namespace CurrentWeatherData.API.Middlewares
         public ApiKeyRateLimitMiddlware(RequestDelegate next, ApiKeyRateLimitMiddlwareOptions options, IMemoryCache memoryCache)
         {
             _next = next;
-
             _options = options;
-
             _memoryCache = memoryCache;
         }
 
@@ -51,11 +49,33 @@ namespace CurrentWeatherData.API.Middlewares
 
             string apiKey = Common.GetApiKeyFromHttpContext(context);
             string path = context.Request.Path;
-            string key = GetMemcacheKey(path, apiKey);
+       
+            // apply rate limit based on path
+            if (!await ApplyRateLimit(path, apiKey))
+            {
+                // apply global limit
+                // only apply when path based rate limit is not applied
+                await ApplyRateLimit("*", apiKey);
+            }
 
-            // apply rate limit
+            await _next(context);
+        }
+
+        /// <summary>
+        /// apply rate limit for the path + api key
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="apiKey"></param>
+        /// <returns>returns TRUE if rate limit is applied</returns>
+        /// <exception cref="ApiKeyRateLimitException"></exception>
+        async private Task<bool> ApplyRateLimit(string path, string apiKey)
+        {
+            string key = path + '_' + apiKey;
+
             ApiKeyRateLimitOption option;
-            if (_options.RateLimit.TryGetValue(path, out option) || _options.RateLimit.TryGetValue("*", out option))
+            bool rateLimitOptionFound = _options.RateLimit.TryGetValue(path, out option);
+
+            if (rateLimitOptionFound)
             {
                 await semaphoreSlim.WaitAsync();
                 try
@@ -86,23 +106,8 @@ namespace CurrentWeatherData.API.Middlewares
                     semaphoreSlim.Release();
                 }
             }
-          
-            await _next(context);
+
+            return rateLimitOptionFound;
         }
-
-
-        private static string GetMemcacheKey(string path, string apiKey)
-        {
-            
-            var keys = new List<string>
-            {
-                path
-            };
-
-            keys.Add(apiKey);
-
-            return string.Join('_', keys);
-        }
-
     }
 }

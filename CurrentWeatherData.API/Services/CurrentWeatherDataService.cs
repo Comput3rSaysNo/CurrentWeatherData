@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using CurrentWeatherData.API.Exceptions;
+using CurrentWeatherData.API.Helpers;
 
 namespace CurrentWeatherData.API.Services
 {
@@ -39,8 +40,11 @@ namespace CurrentWeatherData.API.Services
         /// <exception cref="Exception"></exception>
         async public Task<string> GetCurrentWeatherDescription(string country, string city)
         {
-            ValidateCountryCode(country);
-            ValidateCityName(city);
+            if(!Common.ValidateCountryCode(country))
+                throw new InvalidCountryCodeException();
+
+            if (!Common.ValidateCityName(city))
+                throw new InvalidCityNameException();
 
             // prepare our query uri based on input parameters
             string queryUri = PrepareQueryUri(country, city, _apiKey);
@@ -79,38 +83,12 @@ namespace CurrentWeatherData.API.Services
 
         private string PrepareQueryUri(string Country, string City, string AppId)
         {
-            return String.Format("{0}?q={1},{2}&appid={3}", _openWeatherMapApiBaseUri, City, Country, AppId);
-        }
-
-        /// <summary>
-        /// Checks the Country Code
-        /// </summary>
-        /// <param name="country"></param>
-        /// <exception cref="InvalidCountryCodeException"></exception>
-        public static void ValidateCountryCode(string country)
-        {
-            try
-            {
-                RegionInfo info = new RegionInfo(country);
-            }
-            catch
-            {
-                // The code was not a valid country code
-                throw new InvalidCountryCodeException();
-            }
-        }
-
-        /// <summary>
-        /// Checks the city name
-        /// </summary>
-        /// <param name="city"></param>
-        /// <exception cref="InvalidCityNameException"></exception>
-        public static void ValidateCityName(string city)
-        {
-            if(String.IsNullOrWhiteSpace(city))
-                throw new InvalidCityNameException();
-            else if (city.Length <= 2)
-                throw new InvalidCityNameException();
+            
+            return String.Format("{0}?q={1},{2}&appid={3}"
+                , _openWeatherMapApiBaseUri
+                , HttpUtility.UrlEncode(City)
+                , HttpUtility.UrlEncode(Country)
+                , HttpUtility.UrlEncode(AppId);
         }
     }
 }

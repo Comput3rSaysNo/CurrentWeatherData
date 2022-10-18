@@ -35,7 +35,7 @@ namespace CurrentWeatherData.API.Authorization
                 //requirement is met
                 context.Succeed(requirement);
             }
-
+            
             return Task.CompletedTask;
         }
 
