@@ -1,9 +1,10 @@
 # CurrentWeatherData.Web
 
 ## Description
-This project is a front-end UI built for testing CurrentWeatherData.API in the same solution.
+Frontend UI written in Vuejs for getting weather reports from CurrentWeatherData.API
 
-Please ensure CurrentWeatherData.API service is already running before starting this app.
+Ensure CurrentWeatherData.API is already running under https on port 44313 (https://localhost:44313) 
+If the port or protocol changes, edit the Api Base Uri in ./src/components/Home.vue to match
 
 ## Project setup
 ```

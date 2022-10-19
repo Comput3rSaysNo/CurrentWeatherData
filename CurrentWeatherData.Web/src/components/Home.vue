@@ -59,8 +59,10 @@
         },
         methods: {
             queryCurrentWeatherDataApi() {
+                let apiBaseUri = "https://localhost:44313/weather";
+
                 this.loading = true;
-                axios.get('https://localhost:44313/weather?Country=' + encodeURIComponent(this.country) + '&city=' + encodeURIComponent(this.city) + '&api-key=' + encodeURIComponent(this.apiKey))
+                axios.get(apiBaseUri + '?Country=' + encodeURIComponent(this.country) + '&city=' + encodeURIComponent(this.city) + '&api-key=' + encodeURIComponent(this.apiKey))
                     .then(response => {
                         this.result = JSON.stringify(response.data);
                     })
