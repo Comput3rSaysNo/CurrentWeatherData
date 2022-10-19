@@ -5,8 +5,8 @@ namespace CurrentWeatherData.API.Exceptions
 {
     public class OpenWeatherMapApiDescriptionException : BaseException
     {
-        public OpenWeatherMapApiDescriptionException(string details, Exception innerException) 
-            : base("Failed to read weather description. " + details, innerException, HttpStatusCode.InternalServerError)
+        public OpenWeatherMapApiDescriptionException(Exception innerException) 
+            : base("Error loading current weather info. Failed to read description.", innerException, HttpStatusCode.InternalServerError)
         {
 
         }

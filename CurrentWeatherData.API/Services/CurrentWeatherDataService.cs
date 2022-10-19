@@ -54,34 +54,43 @@ namespace CurrentWeatherData.API.Services
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                // convert response to JSON
-                JObject data = JObject.Parse(responseBody);
-                
                 if (response.IsSuccessStatusCode)
                 {
-                    // extract description field from the response
-                    if (
-                        data != null
-                        && data.HasValues
-                        && data["weather"].HasValues
-                    )
-                    {
-                        return data["weather"][0]["description"].ToString();
-                    }
-                    else
-                    {
-                        // throw exception 
-                        throw new OpenWeatherMapApiDescriptionException("Details: \"" + responseBody + "\"", new Exception(responseBody));
-                    }
+                    return ExtractDescriptionFromResponse(responseBody);
                 }
                 else
                 {
-                    throw new OpenWeatherMapApiFailedException(data["message"].ToString(), new Exception(responseBody));
+                    throw new OpenWeatherMapApiFailedException(new Exception(responseBody));
                 }
             }
         }
 
-        private string PrepareQueryUri(string Country, string City, string AppId)
+        protected string ExtractDescriptionFromResponse(string responseBody)
+        {
+            try
+            {
+                JObject data = JObject.Parse(responseBody);
+
+                // extract description field from the response
+                if (
+                    data != null
+                    && data.HasValues
+                    && data["weather"].HasValues
+                )
+                {
+                    return data["weather"][0]["description"].ToString();
+                }
+                else
+                {
+                    throw new OpenWeatherMapApiDescriptionException(new Exception(responseBody));
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new OpenWeatherMapApiDescriptionException(ex);
+            }
+        }
+        protected string PrepareQueryUri(string Country, string City, string AppId)
         {
             
             return String.Format("{0}?q={1},{2}&appid={3}"

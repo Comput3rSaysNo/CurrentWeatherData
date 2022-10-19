@@ -1,15 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CurrentWeatherData.API.Services;
 using System.Net.Http;
 using System.Net;
@@ -17,20 +12,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using CurrentWeatherData.API.Authorization;
 using CurrentWeatherData.API.Middlewares;
-using System.Numerics;
 using System.Dynamic;
 using Microsoft.AspNetCore.Diagnostics;
 using CurrentWeatherData.API.Exceptions;
-using Microsoft.AspNetCore.Http;
-
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Converters;
-using static System.Collections.Specialized.BitVector32;
 using System.Text.Json;
 
 namespace CurrentWeatherData.API

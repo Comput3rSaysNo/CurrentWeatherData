@@ -6,8 +6,8 @@ using System;
 using System.Linq;
 using CurrentWeatherData.API.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
-using System.Threading;
 using CurrentWeatherData.API.Helpers;
+using System.Collections.Concurrent;
 
 namespace CurrentWeatherData.API.Middlewares
 {
@@ -17,10 +17,12 @@ namespace CurrentWeatherData.API.Middlewares
         private readonly RequestDelegate _next;
 
         private ApiKeyRateLimitMiddlwareOptions _options;
-        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+
+        ConcurrentDictionary<string, List<long>> apiCallTracker = new ConcurrentDictionary<string, List<long>>();
 
         public ApiKeyRateLimitMiddlware(RequestDelegate next, ApiKeyRateLimitMiddlwareOptions options, IMemoryCache memoryCache)
         {
+            
             _next = next;
             _options = options;
             _memoryCache = memoryCache;
@@ -51,12 +53,12 @@ namespace CurrentWeatherData.API.Middlewares
             string path = context.Request.Path;
        
             // apply rate limit based on path
-            if (!await ApplyRateLimit(path, apiKey))
+            if (!ApplyRateLimit(path, apiKey))
             {
                 // apply global limit
                 // only apply when path based rate limit is not applied
-                await ApplyRateLimit("*", apiKey);
-            }
+                ApplyRateLimit("*", apiKey);
+            }   
 
             await _next(context);
         }
@@ -68,7 +70,7 @@ namespace CurrentWeatherData.API.Middlewares
         /// <param name="apiKey"></param>
         /// <returns>returns TRUE if rate limit is applied</returns>
         /// <exception cref="ApiKeyRateLimitException"></exception>
-        async private Task<bool> ApplyRateLimit(string path, string apiKey)
+        private bool ApplyRateLimit(string path, string apiKey)
         {
             string key = path + '_' + apiKey;
 
@@ -77,34 +79,25 @@ namespace CurrentWeatherData.API.Middlewares
 
             if (rateLimitOptionFound)
             {
-                await semaphoreSlim.WaitAsync();
-                try
-                {
-                    int apiCallsWithinLastInterval = await _memoryCache.GetOrCreateAsync(key, cacheEntry =>
-                    {
-                        cacheEntry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(option.RateLimitInterval);
-                        return Task.FromResult(0);
-                    });
 
-                    if (apiCallsWithinLastInterval >= option.RateLimit)
-                    {
-                        throw new ApiKeyRateLimitException(String.Format("Details: [{2}] Api key is rate limited to {0} requests every {1} seconds", option.RateLimit, option.RateLimitInterval, path));
-                    }
-                    else
-                    {
-                        apiCallsWithinLastInterval++;
+                var nowUnixTimestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
 
-                        _memoryCache.Set(key, apiCallsWithinLastInterval, new MemoryCacheEntryOptions()
-                        {
-                            AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(option.RateLimitInterval)
-                        });
-                    }
-                }
-                finally
+                var apiCallHistory = apiCallTracker.GetOrAdd(key, new List<long>());
+
+                var expireUnixTimestamp = (nowUnixTimestamp - option.RateLimitInterval);
+
+                apiCallHistory.RemoveAll(o => o <= expireUnixTimestamp);
+
+                if (apiCallHistory.Count >= option.RateLimit)
                 {
-                    //release the semaphore
-                    semaphoreSlim.Release();
+                    throw new ApiKeyRateLimitException(String.Format("Details: [{2}] Api key is rate limited to {0} requests every {1} seconds", option.RateLimit, option.RateLimitInterval, path));
                 }
+                else
+                {
+                    apiCallHistory.Add(nowUnixTimestamp);
+                    
+                }
+
             }
 
             return rateLimitOptionFound;

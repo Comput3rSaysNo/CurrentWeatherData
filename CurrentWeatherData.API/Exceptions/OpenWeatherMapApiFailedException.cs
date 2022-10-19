@@ -5,10 +5,11 @@ namespace CurrentWeatherData.API.Exceptions
 {
     public class OpenWeatherMapApiFailedException : BaseException
     {
-        public OpenWeatherMapApiFailedException(string details, Exception innerException) 
-            : base("Failed to retrieve data. The error message was \"" + details + "\"", innerException, HttpStatusCode.InternalServerError)
+        public OpenWeatherMapApiFailedException(Exception innerException) 
+            : base("Error loading current weather info. Api error.", innerException, HttpStatusCode.InternalServerError)
         {
 
         }
+
     }
 }

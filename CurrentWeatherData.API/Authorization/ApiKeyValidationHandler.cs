@@ -9,7 +9,8 @@ namespace CurrentWeatherData.API.Authorization
 {
     public class ApiKeyValidationHandler : AuthorizationHandler<ApiKeyValidationRequirement>
     {
-        IHttpContextAccessor _httpContextAccessor = null;
+        protected IHttpContextAccessor _httpContextAccessor = null;
+
         public ApiKeyValidationHandler(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -19,7 +20,7 @@ namespace CurrentWeatherData.API.Authorization
                                                         ApiKeyValidationRequirement requirement)
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
-
+            
             string apiKey = Common.GetApiKeyFromHttpContext(httpContext);
 
             if (apiKey == string.Empty)

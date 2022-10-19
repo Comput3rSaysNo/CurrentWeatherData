@@ -7,7 +7,6 @@ namespace CurrentWeatherData.API.Helpers
 {
     public static class Common
     {
-
         /// <summary>
         /// get api key from request header or from query string
         /// </summary>
@@ -30,15 +29,12 @@ namespace CurrentWeatherData.API.Helpers
         /// <exception cref="InvalidCountryCodeException"></exception>
         public static bool ValidateCountryCode(string country)
         {
-            try
-            {
-                RegionInfo info = new RegionInfo(country);
-                return true;
-            }
-            catch
-            {
+            if (String.IsNullOrWhiteSpace(country))
                 return false;
-            }
+            else if (country.Length < 2)
+                return false;
+
+            return true;
         }
 
         /// <summary>
