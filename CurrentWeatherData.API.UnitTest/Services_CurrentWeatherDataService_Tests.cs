@@ -70,6 +70,14 @@ namespace CurrentWeatherData.API.UnitTest
                 // working!
             }
         }
+
+
+        [TestMethod]
+        public void ShouldRaiseNotFoundException()
+        {
             OpenWeatherMapApiFailedException ex = base.RaiseErrorFromResponse(responseBody404);
+
+            Assert.AreEqual(System.Net.HttpStatusCode.NotFound, ex.HttpErrorCode);
+        }
     }
 }

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using CurrentWeatherData.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using CurrentWeatherData.API.Middlewares;
+using CurrentWeatherData.API.Models;
+using System.Net;
 
 namespace CurrentWeatherData.API.Controllers
 {
@@ -18,14 +20,22 @@ namespace CurrentWeatherData.API.Controllers
         {
             _logger = logger;
             _currentWeatherDataService = currentWeatherDataService;
+
         }
 
         [HttpGet]
         [Authorize(Policy = "ApiKeyValidRequirement")]
         [ApiKeyRateLimitDecorator()]
-        async public Task<IActionResult> Get(string country, string city)
+        async public Task<IActionResult> Get([FromQuery]WeatherRequest request)
         {
-            return Ok(await _currentWeatherDataService.GetCurrentWeatherDescription(country, city));
+            string desc = await _currentWeatherDataService.GetCurrentWeatherDescription(request.Country, request.City);
+
+            WeatherResponse response = new WeatherResponse()
+            {
+                Description = desc,
+            };
+
+            return Ok(response);
         }
     }
 }

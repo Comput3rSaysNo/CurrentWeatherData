@@ -1,0 +1,43 @@
+{
+  // Local CurrentWeatherData.API API Settings
+  "CurrentWeatherData_Api": {
+
+    "RateLimit": [
+      {
+        "Path": "*", // * = global rate limit, only applied when specific Path is not matched from the list below
+        "RateLimit": 5, // Number of API requests allowed per interval
+        "RateLimitInterval": 30 // Interval in seconds
+      },
+      {
+        "Path": "/weather",
+        "RateLimit": 5,
+        "RateLimitInterval": 3600
+      }
+    ],
+
+    "ApiKeys": [
+      "4d4a1b16-cf93-4800-83a6-e4e46725ea6a",
+      "b9ff4e01-53a9-4485-928d-0b99e2bd9816",
+      "90fbd061-19e5-4de4-8339-436a6acbf286",
+      "cdc73f3b-0af8-4575-98ed-ad334240e25a",
+      "8d1caf6f-0f5c-4819-ba6b-8ed92e3f7140"
+    ]
+  },
+
+  // Open Weather Map API Settings
+  "OpenWeatherMap_Api": {
+    "ApiKey": "8b7535b42fe1c551f18028f64e8688f7", //Alternatively use "9f933451cebf1fa39de168a29a4d9a79" for testing
+    "BaseUri": "https://api.openweathermap.org/data/2.5/weather"
+  },
+
+  //Logging Settings
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+
+  "AllowedHosts": "*"
+}

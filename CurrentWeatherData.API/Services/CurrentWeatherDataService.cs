@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using CurrentWeatherData.API.Exceptions;
 using CurrentWeatherData.API.Helpers;
+using System.Net;
 
 namespace CurrentWeatherData.API.Services
 {
@@ -60,7 +61,7 @@ namespace CurrentWeatherData.API.Services
                 }
                 else
                 {
-                    throw new OpenWeatherMapApiFailedException(new Exception(responseBody));
+                    throw RaiseErrorFromResponse(responseBody);
                 }
             }
         }
@@ -75,6 +76,7 @@ namespace CurrentWeatherData.API.Services
                 if (
                     data != null
                     && data.HasValues
+                    && data.ContainsKey("weather")
                     && data["weather"].HasValues
                 )
                 {
@@ -90,6 +92,31 @@ namespace CurrentWeatherData.API.Services
                 throw new OpenWeatherMapApiDescriptionException(ex);
             }
         }
+
+        protected OpenWeatherMapApiFailedException RaiseErrorFromResponse(string responseBody)
+        {
+            JObject data = JObject.Parse(responseBody);
+
+            // extract description field from the response
+            if (
+                data != null
+                && data.HasValues
+                && data.ContainsKey("message")
+                && data.ContainsKey("cod")
+            )
+            {
+
+                HttpStatusCode status = (HttpStatusCode)int.Parse(data["cod"].ToString());
+                string message = data["message"].ToString();
+
+                return new OpenWeatherMapApiFailedException(status, message, new Exception(responseBody));
+            }
+            else
+            {
+                return new OpenWeatherMapApiFailedException(HttpStatusCode.InternalServerError, "Internal Server Error", new Exception(responseBody));
+            }
+        }
+
         protected string PrepareQueryUri(string Country, string City, string AppId)
         {
             
