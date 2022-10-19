@@ -65,7 +65,13 @@
                         this.result = JSON.stringify(response.data);
                     })
                     .catch(error => {
-                        this.result = JSON.stringify(error.response.data);
+                        try {
+                            this.result = JSON.stringify(error.response.data);
+                        }
+                        catch (err) {
+                            this.result = JSON.stringify(error);
+                        }
+                        
                     })
                     .then(() => {
                         setTimeout(() => { this.loading = false }, 1000);
