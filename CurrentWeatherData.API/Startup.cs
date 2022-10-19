@@ -16,6 +16,8 @@ using System.Dynamic;
 using Microsoft.AspNetCore.Diagnostics;
 using CurrentWeatherData.API.Exceptions;
 using System.Text.Json;
+using CurrentWeatherData.API.Controllers;
+using Microsoft.Extensions.Logging;
 
 namespace CurrentWeatherData.API
 {
@@ -30,9 +32,11 @@ namespace CurrentWeatherData.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging();
+
             // enable httpcontextaccessor for our Authorization handler
             services.AddHttpContextAccessor();
-
+            
             services.AddMemoryCache();
 
             // configure CORS
@@ -70,18 +74,16 @@ namespace CurrentWeatherData.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
-        
             app.UseExceptionHandler(c => c.Run(async context =>
             {
                 Exception exception = context.Features
                     .Get<IExceptionHandlerPathFeature>()
                     .Error;
+
+                // log exception
+                logger.LogError(exception, exception.Message);
 
                 HttpStatusCode errorCode = HttpStatusCode.InternalServerError;
 
@@ -103,7 +105,7 @@ namespace CurrentWeatherData.API
 
                 await context.Response.WriteAsync(jsonResponse);
             }));
-    
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();

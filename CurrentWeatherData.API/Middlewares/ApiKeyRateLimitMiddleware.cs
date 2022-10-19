@@ -13,7 +13,7 @@ namespace CurrentWeatherData.API.Middlewares
 {
     public class ApiKeyRateLimitMiddlware
     {
-        private readonly IMemoryCache _memoryCache;
+        
         private readonly RequestDelegate _next;
 
         private ApiKeyRateLimitMiddlwareOptions _options;
@@ -25,7 +25,6 @@ namespace CurrentWeatherData.API.Middlewares
             
             _next = next;
             _options = options;
-            _memoryCache = memoryCache;
         }
 
         public async Task InvokeAsync(HttpContext context)

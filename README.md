@@ -6,6 +6,7 @@ IntegrationTest project for testing CurrentWeatherData.API and its external depe
 
 To run the tests, use the Visual Studio UI or run the command below
 
+## Run Test
 ```
 dotnet test
 ```
@@ -15,6 +16,7 @@ Unit test project for testing classes in CurrentWeatherData.API
 
 To run the tests, use the Visual Studio UI or run the command below
 
+## Run Test
 ```
 dotnet test
 ```
@@ -22,15 +24,21 @@ dotnet test
 # CurrentWeatherData.API.Web
 Frontend UI written in Vuejs for getting weather reports from CurrentWeatherData.API
 
-Ensure CurrentWeatherData.API is already running under https on port 44313 (https://localhost:44313) 
+Ensure CurrentWeatherData.API is already running under HTTPS on port 44313 (https://localhost:44313) 
 If the port or protocol changes, edit the Api Base Uri in ./src/components/Home.vue to match
 
+## Project setup
+```
+npm install
+```
 
+### Compiles and hot-reloads for development
 ```
 npm run serve
 ```
 
-### Local url for development
+## Local url for development
 ```
 https://localhost:8085
 ```
+
