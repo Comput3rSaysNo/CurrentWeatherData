@@ -1,3 +1,9 @@
-CurrentWeatherData.API.IntegrationTest
+# CurrentWeatherData.API.IntegrationTest
 
-This project contains integration tests for CurrentWeatherData.API
+## Description
+This is a Integration Test Project for CurrentWeatherData.API
+
+## Run Unit Tests
+```
+dotnet test
+```
