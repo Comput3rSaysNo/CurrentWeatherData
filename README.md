@@ -5,6 +5,7 @@ Opportunities for improvement
 - The validation for country code and city name are only doing length checks. This can be improved to check against a list of well known list that conforms ISO3166 standard. Potentially agaist a list compiled and shared on github or external services.
 - Api Rate Limit is not effective when running the API in a cluster environment. Some centralized cache should be added, such as Redis cache or Azure equivalent
 - Authorization is done against a hardcoded list. OAuth with self-hosted identity server / AWS cognito / Azure AD should be considered.
+- If the solution is going to be hosted on-premise, consider shipping the logs to Cloud (AWS Cloudwatch or Azure equivalent)
 
 # CurrentWeatherData.API.IntegrationTest
 IntegrationTest project for testing CurrentWeatherData.API and its external dependencies
