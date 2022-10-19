@@ -70,5 +70,6 @@ namespace CurrentWeatherData.API.UnitTest
                 // working!
             }
         }
+            OpenWeatherMapApiFailedException ex = base.RaiseErrorFromResponse(responseBody404);
     }
 }
