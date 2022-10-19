@@ -47,7 +47,10 @@
     <Content Include="README.md" />
     <Content Include="src\App.vue" />
     <Content Include="src\assets\logo.png" />
-    <Content Include="src\components\HelloWorld.vue" />
+    <Content Include="src\components\Home.vue" />
+    <Content Include="src\assets\site.css">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\main.js" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
