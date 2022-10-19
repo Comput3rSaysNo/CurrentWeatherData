@@ -27,7 +27,7 @@ namespace CurrentWeatherData.API.Authorization
             {
                 throw new MissingApiKeyException();
             }
-            else if (!requirement.IsApiKeyValid(apiKey))
+            else if (!requirement.ValidApiKeys.Contains(apiKey))
             {
                 throw new InvalidApiKeyException();
             }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using CurrentWeatherData.API.Exceptions;
-using Microsoft.Extensions.Caching.Memory;
 using CurrentWeatherData.API.Helpers;
 using System.Collections.Concurrent;
 
@@ -20,9 +19,8 @@ namespace CurrentWeatherData.API.Middlewares
 
         ConcurrentDictionary<string, List<long>> apiCallTracker = new ConcurrentDictionary<string, List<long>>();
 
-        public ApiKeyRateLimitMiddlware(RequestDelegate next, ApiKeyRateLimitMiddlwareOptions options, IMemoryCache memoryCache)
+        public ApiKeyRateLimitMiddlware(RequestDelegate next, ApiKeyRateLimitMiddlwareOptions options)
         {
-            
             _next = next;
             _options = options;
         }
@@ -63,7 +61,7 @@ namespace CurrentWeatherData.API.Middlewares
         }
 
         /// <summary>
-        /// apply rate limit for the path + api key
+        /// apply api key rate limit for the path
         /// </summary>
         /// <param name="path"></param>
         /// <param name="apiKey"></param>
@@ -74,32 +72,38 @@ namespace CurrentWeatherData.API.Middlewares
             string key = path + '_' + apiKey;
 
             ApiKeyRateLimitOption option;
-            bool rateLimitOptionFound = _options.RateLimit.TryGetValue(path, out option);
+            bool rateLimitRuleMatched = _options.RateLimit.TryGetValue(path, out option);
 
-            if (rateLimitOptionFound)
+            if (rateLimitRuleMatched)
             {
+                // now
+                long nowUnixTimestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
 
-                var nowUnixTimestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+                // when to expire the access records
+                long expireUnixTimestamp = (nowUnixTimestamp - option.RateLimitInterval);
 
-                var apiCallHistory = apiCallTracker.GetOrAdd(key, new List<long>());
+                // get list of access records that matches the path+api_key combo
+                List<long> apiCallHistory = apiCallTracker.GetOrAdd(key, new List<long>());
 
-                var expireUnixTimestamp = (nowUnixTimestamp - option.RateLimitInterval);
-
+                // remove expired records 
                 apiCallHistory.RemoveAll(o => o <= expireUnixTimestamp);
 
+                // check if the count is below the rate limit
                 if (apiCallHistory.Count >= option.RateLimit)
                 {
+                    // deny access if rate limit is reached
                     throw new ApiKeyRateLimitException(String.Format("Details: [{2}] Api key is rate limited to {0} requests every {1} seconds", option.RateLimit, option.RateLimitInterval, path));
                 }
                 else
                 {
+                    // grant access and record the api call
                     apiCallHistory.Add(nowUnixTimestamp);
-                    
                 }
 
             }
 
-            return rateLimitOptionFound;
+            // indicate if the rate limit was applied or not
+            return rateLimitRuleMatched;
         }
     }
 }

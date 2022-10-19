@@ -4,17 +4,22 @@
         <h1 class="mb-5 text-center">Current Weather Data Api Test Client</h1>
 
         <div class="mb-3">
+            <label for="serviceUri" class="form-label">Service Base Uri</label>
+            <input id="serviceUri" required type="text" v-model="apiBaseUri" class="form-control" />
+        </div>
+
+        <div class="mb-3">
             <label for="country" class="form-label">Country</label>
-            <input id="country" type="text" v-model="country" class="form-control" />
+            <input id="country" required type="text" v-model="country" class="form-control" />
 
         </div>
         <div class="mb-3">
             <label for="city" class="form-label">City</label>
-            <input id="city" type="text" v-model="city" class="form-control" />
+            <input id="city" required type="text" v-model="city" class="form-control" />
         </div>
         <div class="mb-3">
             <label for="apikey" class="form-label">Api Key</label>
-            <select id="apikey" class="form-control" v-model="apiKey" :options="apiKeyList">
+            <select id="apikey" required class="form-control" v-model="apiKey" :options="apiKeyList">
                 <option v-for="k in apiKeyList" :value="k">
                     {{ k }}
                 </option>
@@ -27,7 +32,7 @@
             <div id="responseHelper" class="form-text">stack trace info is only available in DEV environment.</div>
         </div>
 
-        
+
         <button class="btn btn-primary p-3" @click="queryCurrentWeatherDataApi" :disabled="loading">{{loading ? "Loading..." :"Query"}}</button>
 
     </div>
@@ -45,7 +50,7 @@
                 apiKey: "4d4a1b16-cf93-4800-83a6-e4e46725ea6a",
                 result: "",
                 city: "Melbourne",
-                country: "Australia",
+                country: "AU",
                 apiKeyList: [
                     "4d4a1b16-cf93-4800-83a6-e4e46725ea6a",
                     "b9ff4e01-53a9-4485-928d-0b99e2bd9816",
@@ -54,26 +59,22 @@
                     "8d1caf6f-0f5c-4819-ba6b-8ed92e3f7140"
                 ],
                 loading: false,
-
+                apiBaseUri: "https://localhost:44313/weather"
             }
         },
         methods: {
             queryCurrentWeatherDataApi() {
-                let apiBaseUri = "https://localhost:44313/weather";
-
+                
                 this.loading = true;
-                axios.get(apiBaseUri + '?Country=' + encodeURIComponent(this.country) + '&city=' + encodeURIComponent(this.city) + '&api-key=' + encodeURIComponent(this.apiKey))
+                axios.get(this.apiBaseUri + '?country=' + encodeURIComponent(this.country) + '&city=' + encodeURIComponent(this.city) + '&api-key=' + encodeURIComponent(this.apiKey))
                     .then(response => {
                         this.result = JSON.stringify(response.data);
                     })
                     .catch(error => {
-                        try {
+                        if (error.response && error.response.data)
                             this.result = JSON.stringify(error.response.data);
-                        }
-                        catch (err) {
+                        else
                             this.result = JSON.stringify(error);
-                        }
-                        
                     })
                     .then(() => {
                         setTimeout(() => { this.loading = false }, 1000);

@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using CurrentWeatherData.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using CurrentWeatherData.API.Middlewares;
 using CurrentWeatherData.API.Models;
-using System.Net;
 
 namespace CurrentWeatherData.API.Controllers
 {
@@ -13,14 +11,11 @@ namespace CurrentWeatherData.API.Controllers
     [Route("[controller]")]
     public class WeatherController : ControllerBase
     {
-        private readonly ILogger<WeatherController> _logger;
         private readonly CurrentWeatherDataService _currentWeatherDataService;
 
-        public WeatherController(ILogger<WeatherController> logger, CurrentWeatherDataService currentWeatherDataService)
+        public WeatherController(CurrentWeatherDataService currentWeatherDataService)
         {
-            _logger = logger;
             _currentWeatherDataService = currentWeatherDataService;
-
         }
 
         [HttpGet]

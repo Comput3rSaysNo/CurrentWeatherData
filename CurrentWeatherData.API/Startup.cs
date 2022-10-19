@@ -16,7 +16,6 @@ using System.Dynamic;
 using Microsoft.AspNetCore.Diagnostics;
 using CurrentWeatherData.API.Exceptions;
 using System.Text.Json;
-using CurrentWeatherData.API.Controllers;
 using Microsoft.Extensions.Logging;
 
 namespace CurrentWeatherData.API
@@ -36,8 +35,6 @@ namespace CurrentWeatherData.API
 
             // enable httpcontextaccessor for our Authorization handler
             services.AddHttpContextAccessor();
-            
-            services.AddMemoryCache();
 
             // configure CORS
             services.AddCors(options =>
@@ -46,7 +43,6 @@ namespace CurrentWeatherData.API
                     builder => builder.AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader());
-
             });
 
             // configure API key handler
@@ -85,21 +81,23 @@ namespace CurrentWeatherData.API
                 // log exception
                 logger.LogError(exception, exception.Message);
 
+                // set response http status code
                 HttpStatusCode errorCode = HttpStatusCode.InternalServerError;
-
+                
                 if (exception is BaseException)
                     errorCode = ((BaseException)exception).HttpErrorCode;
+                
+                context.Response.StatusCode = (int)errorCode;
 
+                // prepare response message
                 dynamic response = new ExpandoObject();
 
                 response.code = (int)errorCode;
                 response.message = exception.Message;
 
-                // only output stacktrace in dev environment
+                // only include stack trace in dev environment
                 if (env.IsDevelopment())
                     response.stacktrace = exception.ToString();
-
-                context.Response.StatusCode = response.code;
 
                 string jsonResponse = JsonSerializer.Serialize(response);
 
@@ -125,12 +123,10 @@ namespace CurrentWeatherData.API
             };
             app.UseMiddleware<ApiKeyRateLimitMiddlware>(apiKeyRateLimitMiddlwareOptions);
 
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
         }
     }
 }

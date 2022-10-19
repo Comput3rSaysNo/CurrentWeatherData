@@ -21,8 +21,8 @@ namespace CurrentWeatherData.API.UnitTest
         [TestMethod]
         public void ShouldDenyAccessAfterFiveReuqests_PathRateLimit()
         {
-            ApiKeyRateLimitMiddlware middleware = prepareMiddleware();
-            HttpContext context = prepareHttpContext("/allow_5_per_30_secs");
+            ApiKeyRateLimitMiddlware middleware = ArrangeMiddleware();
+            HttpContext context = ArrangeHttpContext("/allow_5_per_30_secs");
 
             // perform test
             RunMiddleware(middleware, context, 5, 20);
@@ -31,8 +31,8 @@ namespace CurrentWeatherData.API.UnitTest
         [TestMethod]
         public void ShouldDenyAccessAfterTenReuqests_GlobalRateLimit()
         {
-            ApiKeyRateLimitMiddlware middleware = prepareMiddleware();
-            HttpContext context = prepareHttpContext("/some_path_with_no_decorator_global_rate_limit_apply");
+            ApiKeyRateLimitMiddlware middleware = ArrangeMiddleware();
+            HttpContext context = ArrangeHttpContext("/some_path_with_no_decorator_global_rate_limit_apply");
 
             // perform test
             RunMiddleware(middleware, context, 10, 20);
@@ -41,8 +41,8 @@ namespace CurrentWeatherData.API.UnitTest
         [TestMethod]
         public void ShouldDenyAccessAfterFiveReuqests_ThenRegainAccessAfterTenSeconds_PathRateLimit()
         {
-            ApiKeyRateLimitMiddlware middleware = prepareMiddleware();
-            HttpContext context = prepareHttpContext("/allow_5_per_10_secs");
+            ApiKeyRateLimitMiddlware middleware = ArrangeMiddleware();
+            HttpContext context = ArrangeHttpContext("/allow_5_per_10_secs");
             
             // perform test
             RunMiddleware(middleware, context, 5, 20);
@@ -58,7 +58,7 @@ namespace CurrentWeatherData.API.UnitTest
 
         }
 
-        public HttpContext prepareHttpContext(string requestPath)
+        public HttpContext ArrangeHttpContext(string requestPath)
         {
             string apiKey = "7f036c0d-72fd-45c7-b212-5d4a7feb3c0d";
 
@@ -83,7 +83,7 @@ namespace CurrentWeatherData.API.UnitTest
             return context;
         }
 
-        public static RequestDelegate prepareRequestDelegate()
+        public static RequestDelegate ArrangeRequestDelegate()
         {
             HttpContext context = new DefaultHttpContext();
             var requestDelegate = new RequestDelegate(async (innerContext) =>
@@ -94,20 +94,16 @@ namespace CurrentWeatherData.API.UnitTest
             return requestDelegate;
         }
 
-        public static ApiKeyRateLimitMiddlware prepareMiddleware()
+        public static ApiKeyRateLimitMiddlware ArrangeMiddleware()
         {
-            RequestDelegate d = prepareRequestDelegate();
+            RequestDelegate d = ArrangeRequestDelegate();
 
             ApiKeyRateLimitMiddlwareOptions options = new ApiKeyRateLimitMiddlwareOptions();
             options.RateLimit.Add("*", new ApiKeyRateLimitOption(10, 30));
             options.RateLimit.Add("/allow_5_per_30_secs", new ApiKeyRateLimitOption(5, 30));
             options.RateLimit.Add("/allow_5_per_10_secs", new ApiKeyRateLimitOption(5, 10));
 
-            MemoryCache cache = new MemoryCache(new MemoryCacheOptions
-            {
-            });
-
-            var middleware = new ApiKeyRateLimitMiddlware(d, options, cache);
+            var middleware = new ApiKeyRateLimitMiddlware(d, options);
 
             return middleware;
         }

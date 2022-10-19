@@ -41,9 +41,11 @@ namespace CurrentWeatherData.API.Services
         /// <exception cref="Exception"></exception>
         async public Task<string> GetCurrentWeatherDescription(string country, string city)
         {
+            // country code validation
             if(!Common.ValidateCountryCode(country))
                 throw new InvalidCountryCodeException();
 
+            // city name validation
             if (!Common.ValidateCityName(city))
                 throw new InvalidCityNameException();
 
@@ -57,10 +59,12 @@ namespace CurrentWeatherData.API.Services
 
                 if (response.IsSuccessStatusCode)
                 {
+                    // parse success response
                     return ExtractDescriptionFromResponse(responseBody);
                 }
                 else
                 {
+                    // parse failed response and raise exception
                     throw RaiseErrorFromResponse(responseBody);
                 }
             }
@@ -105,7 +109,6 @@ namespace CurrentWeatherData.API.Services
                 && data.ContainsKey("cod")
             )
             {
-
                 HttpStatusCode status = (HttpStatusCode)int.Parse(data["cod"].ToString());
                 string message = data["message"].ToString();
 
@@ -119,8 +122,7 @@ namespace CurrentWeatherData.API.Services
 
         protected string PrepareQueryUri(string Country, string City, string AppId)
         {
-            
-            return String.Format("{0}?q={1},{2}&appid={3}"
+            return string.Format("{0}?q={1},{2}&appid={3}"
                 , _openWeatherMapApiBaseUri
                 , HttpUtility.UrlEncode(City)
                 , HttpUtility.UrlEncode(Country)

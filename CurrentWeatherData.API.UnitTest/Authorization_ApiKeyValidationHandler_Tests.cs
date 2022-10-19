@@ -13,7 +13,7 @@ namespace CurrentWeatherData.API.UnitTest
     [TestClass]
     public class Authorization_ApiKeyValidationHandler_Tests : ApiKeyValidationHandler
     {
-        public static HttpContextAccessor arrangeHttpContextAccessor()
+        public static HttpContextAccessor ArrangeHttpContextAccessor()
         {
             return new HttpContextAccessor
             {
@@ -21,7 +21,7 @@ namespace CurrentWeatherData.API.UnitTest
             };
         }
 
-        public static ApiKeyValidationRequirement arrangeApiKeyValidationRequirement()
+        public static ApiKeyValidationRequirement ArrangeApiKeyValidationRequirement()
         {
             var requirement = new ApiKeyValidationRequirement(new string[] {
                     "cdc73f3b-0af8-4575-98ed-ad334240e25a",
@@ -31,9 +31,9 @@ namespace CurrentWeatherData.API.UnitTest
             return requirement;
         }
 
-        public static AuthorizationHandlerContext prepareAuthorizationHandlerContext()
+        public static AuthorizationHandlerContext ArrangeAuthorizationHandlerContext()
         {
-            var requirement = arrangeApiKeyValidationRequirement();
+            var requirement = ArrangeApiKeyValidationRequirement();
 
             var requirements = new[] { requirement };
             var user = new ClaimsPrincipal(
@@ -48,7 +48,7 @@ namespace CurrentWeatherData.API.UnitTest
             return authorizationHandlerContext;
         }
 
-        public Authorization_ApiKeyValidationHandler_Tests(): base (Authorization_ApiKeyValidationHandler_Tests.arrangeHttpContextAccessor())
+        public Authorization_ApiKeyValidationHandler_Tests(): base (ArrangeHttpContextAccessor())
         {
         }
 
@@ -56,8 +56,8 @@ namespace CurrentWeatherData.API.UnitTest
         public void ShouldThrowMissingApiKeyExceptionWhenApiKeyIsNotPresent()
         {
             //Arrange
-            base._httpContextAccessor = arrangeHttpContextAccessor();
-            var authorizationHandlerContext = prepareAuthorizationHandlerContext();
+            base._httpContextAccessor = ArrangeHttpContextAccessor();
+            var authorizationHandlerContext = ArrangeAuthorizationHandlerContext();
             
             try { 
                 HandleRequirementAsync(authorizationHandlerContext
@@ -75,10 +75,10 @@ namespace CurrentWeatherData.API.UnitTest
         public void ShouldThrowInvalidApiKeyExceptionWhenApiKeyIsNotAllowedRequestHeader()
         {
             //Arrange
-            base._httpContextAccessor = arrangeHttpContextAccessor();
+            base._httpContextAccessor = ArrangeHttpContextAccessor();
             base._httpContextAccessor.HttpContext.Request.Headers.Add("X-API-KEY", "0569db4e-ccbb-4e20-8f69-95e67476327a");
 
-            var authorizationHandlerContext = prepareAuthorizationHandlerContext();
+            var authorizationHandlerContext = ArrangeAuthorizationHandlerContext();
 
             try
             {
@@ -97,10 +97,10 @@ namespace CurrentWeatherData.API.UnitTest
         public void ShouldThrowInvalidApiKeyExceptionWhenApiKeyIsNotAllowedQueryString()
         {
             //Arrange
-            base._httpContextAccessor = arrangeHttpContextAccessor();
+            base._httpContextAccessor = ArrangeHttpContextAccessor();
             base._httpContextAccessor.HttpContext.Request.QueryString = new QueryString("?API-KEY=0569db4e-ccbb-4e20-8f69-95e67476327a");
 
-            var authorizationHandlerContext = prepareAuthorizationHandlerContext();
+            var authorizationHandlerContext = ArrangeAuthorizationHandlerContext();
 
             try
             {
@@ -118,10 +118,10 @@ namespace CurrentWeatherData.API.UnitTest
         [TestMethod]
         public void ShouldAllowApiKeyInRequestHeader()
         {
-            base._httpContextAccessor = arrangeHttpContextAccessor();
+            base._httpContextAccessor = ArrangeHttpContextAccessor();
             base._httpContextAccessor.HttpContext.Request.Headers.Add("X-API-KEY", "cdc73f3b-0af8-4575-98ed-ad334240e25a");
 
-            var authorizationHandlerContext = prepareAuthorizationHandlerContext();
+            var authorizationHandlerContext = ArrangeAuthorizationHandlerContext();
 
             HandleRequirementAsync(authorizationHandlerContext
                     , (ApiKeyValidationRequirement)authorizationHandlerContext.Requirements.First()).Wait();
@@ -132,11 +132,11 @@ namespace CurrentWeatherData.API.UnitTest
         [TestMethod]
         public void ShouldAllowApiKeyInQueryString()
         {
-            base._httpContextAccessor = arrangeHttpContextAccessor();
+            base._httpContextAccessor = ArrangeHttpContextAccessor();
             base._httpContextAccessor.HttpContext.Request.QueryString = new QueryString("?API-KEY=cdc73f3b-0af8-4575-98ed-ad334240e25a");
             //("API-KEY"]= "API-KEY=cdc73f3b-0af8-4575-98ed-ad334240e25a";
 
-            var authorizationHandlerContext = prepareAuthorizationHandlerContext();
+            var authorizationHandlerContext = ArrangeAuthorizationHandlerContext();
 
             HandleRequirementAsync(authorizationHandlerContext
                     , (ApiKeyValidationRequirement)authorizationHandlerContext.Requirements.First()).Wait();

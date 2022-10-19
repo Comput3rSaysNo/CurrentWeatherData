@@ -23,10 +23,10 @@ namespace CurrentWeatherData.API.Helpers
         }
 
         /// <summary>
-        /// Checks the Country Code
+        /// Country Code validation
         /// </summary>
         /// <param name="country"></param>
-        /// <exception cref="InvalidCountryCodeException"></exception>
+        /// <returns></returns>
         public static bool ValidateCountryCode(string country)
         {
             if (String.IsNullOrWhiteSpace(country))
@@ -38,10 +38,10 @@ namespace CurrentWeatherData.API.Helpers
         }
 
         /// <summary>
-        /// Checks the city name
+        /// City Name validation
         /// </summary>
         /// <param name="city"></param>
-        /// <exception cref="InvalidCityNameException"></exception>
+        /// <returns></returns>
         public static bool ValidateCityName(string city)
         {
             if (String.IsNullOrWhiteSpace(city))

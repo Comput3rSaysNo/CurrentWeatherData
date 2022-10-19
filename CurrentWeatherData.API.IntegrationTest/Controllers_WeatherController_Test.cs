@@ -13,6 +13,7 @@ namespace CurrentWeatherData.API.IntegrationTest
     {
         private TestServer _testServer;
         private HttpClient _testClient;
+
         private string _apiKey = "4d4a1b16-cf93-4800-83a6-e4e46725ea6a";
         private string _apiKeyRateLimitTest = "b9ff4e01-53a9-4485-928d-0b99e2bd9816";
         private string _apiKeyInvalid = "9c4a1b16-cf93-4800-83a6-e4e46725ea6a";
@@ -33,6 +34,7 @@ namespace CurrentWeatherData.API.IntegrationTest
                     .UseStartup<Startup>());
 
             _testClient = _testServer.CreateClient();
+
         }
 
         [TestCleanup()]
