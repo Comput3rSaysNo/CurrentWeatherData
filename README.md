@@ -1,5 +1,6 @@
 # CurrentWeatherData.API
-WebAPI Project for accessing weather data from openweathermap
+WebAPI Project for accessing weather data from openweathermap.
+See project specifc README for more details.
 
 Opportunities for improvement
 - The validation for country code and city name are only doing length checks. This can be improved to check against a list of well known list that conforms ISO3166 standard. Potentially agaist a list compiled and shared on github or external services.
