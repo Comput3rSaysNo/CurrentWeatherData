@@ -23,5 +23,5 @@ npm run build
 
 ### Local url for development
 ```
-https://localhost:8085
+http://localhost:8085
 ```
